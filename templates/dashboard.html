@@ -564,7 +564,7 @@ function updateSquare(el, status, reason) {
                 {% set total_days = 365 %}
             {% endif %}
 
-            <div class="grid-container" style="grid-template-columns: 450px repeat({{ total_days }}, 14px);">
+            <div class="grid-container" style="grid-template-columns: max-content repeat({{ total_days }}, 14px);">
                 
                 {# Хедери тижнів та днів у форматі 40k #}
                 {% if week_headers %}
@@ -593,7 +593,7 @@ function updateSquare(el, status, reason) {
                     
                     {% for item in grouped_threads[cat] %}
                         <div class="habit-label">
-                            <span style="white-space: nowrap;">{{ item.info.thread_name }}</span>
+                            <span style="white-space: nowrap; padding-right: 15px;">{{ item.info.thread_name }}</span>
                             
                             {# Блок кнопок управління - з'являється при наведенні тільки для авторизованих #}
                             {% if is_auth %}
