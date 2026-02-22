@@ -554,7 +554,7 @@ def index():
             'week_40k': cal.week_40k
         }
 
-        categories = ['work', 'family', 'maintenance', 'self care']
+        categories = ['work', 'maintenance', 'family', 'self care']
         threads = Thread.query.filter(Thread.status == 'active').order_by(Thread.rank.desc()).all()
         grouped_threads = {c: [] for c in categories}
         
