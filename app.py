@@ -583,7 +583,7 @@ def index():
         sq_map = {(s.thread_id, s.period): s for s in all_squares}
         
         for th in threads:
-            cat = th.category if th.category in grouped_threads else 'frogs'
+            cat = th.category if th.category in grouped_threads else 'maintenance'
             days = []
             
             for i in range(28):
