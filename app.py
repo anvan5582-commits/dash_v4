@@ -124,9 +124,9 @@ class PartnerRequest(db.Model):
 
 def get_40k_data(d_obj):
     # Визначаємо вік: якщо дата до 13 лютого, то вік на 1 менше
-    age = d_obj.year - 1992 - ((d_obj.month, d_obj.day) < (2, 13))
+    age = d_obj.year - 1992 - ((d_obj.month, d_obj.day) < (2, 16))
     # Визначаємо день народження для поточного "року життя"
-    bday = date(1992 + age, 2, 13)
+    bday = date(1992 + age, 2, 16)
     
     delta_days = (d_obj - bday).days
     week_num = (delta_days // 7) + 1
@@ -199,8 +199,8 @@ def is_day_fulfilled(thread, date_obj, squares_map):
         
         # НОВА ЛОГІКА ДЛЯ 40k ТИЖНІВ (від 13 лютого)
         if thread.cadence == '3x_week' or thread.cadence == 'weekly':
-            age = date_obj.year - 1992 - ((date_obj.month, date_obj.day) < (2, 13))
-            bday = date(1992 + age, 2, 13)
+            age = date_obj.year - 1992 - ((date_obj.month, date_obj.day) < (2, 16))
+            bday = date(1992 + age, 2, 16)
             delta_days = (date_obj - bday).days
             week_start_delta = (delta_days // 7) * 7
             start_date = bday + timedelta(days=week_start_delta)
@@ -559,8 +559,8 @@ def index():
         grouped_threads = {c: [] for c in categories}
         
         # --- НОВА ЛОГІКА СІТКИ (40k Format) ---
-        age = today.year - 1992 - ((today.month, today.day) < (2, 13))
-        bday = date(1992 + age, 2, 13)
+        age = today.year - 1992 - ((today.month, today.day) < (2, 16))
+        bday = date(1992 + age, 2, 16)
         delta_today = (today - bday).days
         current_week_num = (delta_today // 7) + 1
         
