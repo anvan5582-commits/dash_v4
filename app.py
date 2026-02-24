@@ -525,18 +525,38 @@ def index():
     try:
         today = date.today()
         cal = ensure_calendar_entry(today)
-        raw_comments = cal.comments or ""
-        parsed_comments = []
-        lines = [c for c in raw_comments.split('\n') if c.strip()]
-        for line in lines:
-            if line.startswith('[') and ']' in line:
-                end_bracket = line.find(']')
-                time_str = line[1:end_bracket]
-                text_str = line[end_bracket+1:].strip()
-                parsed_comments.append({'time': time_str, 'text': text_str})
-            else:
-                parsed_comments.append({'time': '', 'text': line})
-        parsed_comments.reverse()
+        
+        # --- НОВА ЛОГІКА ДЛЯ ОСТАННІХ 5 ТВІТІВ ---
+        # Шукаємо останні дні, в яких є записи, сортуючи від найновіших
+        recent_cals = Calendar.query.filter(
+            Calendar.comments != "", 
+            Calendar.comments.is_not(None)
+        ).order_by(Calendar.actual_date.desc()).limit(10).all()
+        
+        global_parsed_comments = []
+        for c in recent_cals:
+            lines = [line for line in c.comments.split('\n') if line.strip()]
+            day_comments = []
+            for line in lines:
+                if line.startswith('[') and ']' in line:
+                    end_bracket = line.find(']')
+                    time_str = line[1:end_bracket]
+                    text_str = line[end_bracket+1:].strip()
+                    # Зберігаємо також дату, щоб знати коли це було написано
+                    day_comments.append({'date': c.actual_date.strftime('%Y-%m-%d'), 'time': time_str, 'text': text_str})
+                else:
+                    day_comments.append({'date': c.actual_date.strftime('%Y-%m-%d'), 'time': '', 'text': line})
+            
+            day_comments.reverse() # Спочатку новіші за цей конкретний день
+            global_parsed_comments.extend(day_comments)
+            
+            # Якщо вже назбирали 5, можна зупинитись
+            if len(global_parsed_comments) >= 5:
+                break
+                
+        # Відрізаємо рівно 5 найновіших зібраних твітів
+        parsed_comments = global_parsed_comments[:5]
+        # ----------------------------------------
 
         board_items = BoardItem.query.order_by(BoardItem.id.desc()).all()
         board_data = [{'id': b.id, 'text': b.text} for b in board_items]
