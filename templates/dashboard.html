@@ -490,7 +490,7 @@ function updateSquare(el, status, reason) {
                     document.getElementById('ctxOff').checked = data.off;
                     document.getElementById('ctxOffReason').value = data.off_reason;
                     document.getElementById('ctxOffReason').style.display = data.off ? 'block' : 'none';
-                    
+                    document.getElementById('ctxComments').value = data.comments || "Немає записів за цей день.";
                     document.getElementById('contextTitle').innerText = "Day Context: " + dateStr;
                     showModalWindow('contextModal');
                 }
@@ -533,7 +533,7 @@ function updateSquare(el, status, reason) {
                     {% for msg in ctx.comment_list %}
                         <div class="task-bubble {% if loop.index % 2 == 0 %}right{% else %}left{% endif %}">
                             <div class="task-text">{{ msg.text }}</div>
-                            <div class="task-timestamp">{{ today_date }} · {{ msg.time if msg.time else "--:--" }}</div>
+                            <div class="task-timestamp">{{ msg.date }} · {{ msg.time if msg.time else "--:--" }}</div>
                         </div>
                     {% endfor %}
                 {% else %}
@@ -675,7 +675,8 @@ function updateSquare(el, status, reason) {
                 <label class="m-label">Work Priority</label><input type="text" id="ctxWork" value="{{ ctx.top_work }}" class="m-input">
                 <label class="m-label">Self Priority</label><input type="text" id="ctxOther" value="{{ ctx.top_other }}" class="m-input">
                 <label class="m-label">Project</label><input type="text" id="ctxProject" value="{{ ctx.project }}" class="m-input">
-                
+                <label class="m-label">Твіти (Day Log)</label>
+                <textarea id="ctxComments" class="m-input" readonly style="background: #f5f5f5; min-height: 60px; font-family: monospace; font-size: 11px; resize: vertical;" placeholder="Записів немає..."></textarea>
                 <div style="margin-top: 15px;">
                     <label style="display:flex; align-items:center; gap:8px; font-size:13px; font-weight:500;">
                         <input type="checkbox" id="ctxMeds" {% if ctx.meds %}checked{% endif %}> Meds Taken
