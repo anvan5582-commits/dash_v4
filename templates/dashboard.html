@@ -401,7 +401,7 @@
 
         let activeCell = null;
         function handleCellClick(el) {
-            if (!IS_AUTH) { showModalWindow('loginModal'); return; } // Якщо не авторизовані - просимо пароль
+            if (!IS_AUTH) { showModalWindow('loginModal'); return; }
             const status = el.getAttribute('data-status');
             const next = (status === 'empty') ? 'hit' : (status === 'hit' ? 'miss' : 'empty');
             if (next === 'miss') {
@@ -546,7 +546,6 @@ function updateSquare(el, status, reason) {
                 </div>
             </div>
             
-            {# Обчислюємо точну ширину сітки на основі даних Flask #}
             {% set first_cat = categories[0] %}
             {% if grouped_threads[first_cat] and grouped_threads[first_cat][0] %}
                 {% set total_days = grouped_threads[first_cat][0].weeks | length * 7 %}
@@ -556,7 +555,6 @@ function updateSquare(el, status, reason) {
 
             <div class="grid-container" style="grid-template-columns: max-content repeat({{ total_days }}, 14px);">
                 
-                {# Хедери тижнів та днів у форматі 40k #}
                 {% if week_headers %}
                     {% for header in week_headers %}
                         <div class="week-header" style="grid-column: {{ 2 + loop.index0 * 7 }} / span 7;">{{ header }}</div>
@@ -571,11 +569,9 @@ function updateSquare(el, status, reason) {
                     {% endfor %}
                 {% endif %}
 
-{# Категорії та треди #}
                 {% for cat in categories %}
                     <div class="category-header">
                         <span>{{ cat|title }}</span>
-                        {# Кнопка додавання нової звички #}
                         {% if is_auth %}
                             <span class="cat-add-btn" onclick="openAddModal('{{ cat }}')" style="display: inline-block !important;">+ Add</span>
                         {% endif %}
@@ -585,7 +581,6 @@ function updateSquare(el, status, reason) {
                         <div class="habit-label">
                             <span style="white-space: nowrap; padding-right: 15px;">{{ item.info.thread_name }}</span>
                             
-                            {# Блок кнопок управління - з'являється при наведенні тільки для авторизованих #}
                             {% if is_auth %}
                             <div class="label-controls" style="display: flex !important;">
     <button class="l-btn" onclick="moveThread('{{ item.info.thread_id }}', 'up')">↑</button>
