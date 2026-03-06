@@ -60,7 +60,7 @@ if REQUEST_BOT_TOKEN:
 class BotUser(db.Model):
     __tablename__ = 'bot_users'
     chat_id = db.Column(db.BigInteger, primary_key=True)
-    role = db.Column(db.String(20), nullable=False) # 'user' або 'admin'
+    role = db.Column(db.String(20), nullable=False)
 
 class Thread(db.Model):
     __tablename__ = 'threads'
@@ -123,9 +123,7 @@ class PartnerRequest(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.datetime.now)
 
 def get_40k_data(d_obj):
-    # Визначаємо вік: якщо дата до 13 лютого, то вік на 1 менше
     age = d_obj.year - 1992 - ((d_obj.month, d_obj.day) < (2, 16))
-    # Визначаємо день народження для поточного "року життя"
     bday = date(1992 + age, 2, 16)
     
     delta_days = (d_obj - bday).days
@@ -197,7 +195,6 @@ def is_day_fulfilled(thread, date_obj, squares_map):
         start_date = None
         end_date = None
         
-        # НОВА ЛОГІКА ДЛЯ 40k ТИЖНІВ (від 13 лютого)
         if thread.cadence == '3x_week' or thread.cadence == 'weekly':
             age = date_obj.year - 1992 - ((date_obj.month, date_obj.day) < (2, 16))
             bday = date(1992 + age, 2, 16)
@@ -238,7 +235,6 @@ def is_day_fulfilled(thread, date_obj, squares_map):
         print(f"Error in is_day_fulfilled: {e}")
         return False
     
-# --- BACKUP & RESTORE ---
 def create_full_backup_json():
     data = {}
     data['threads'] = [{
@@ -331,7 +327,6 @@ def restore_from_json(json_content):
 def send_scheduled_backup():
     try:
         with app.app_context():
-            # Шукаємо всіх адмінів у базі
             admins = BotUser.query.filter_by(role='admin').all()
             if not admins: return
             
@@ -391,7 +386,6 @@ if bot:
         with app.app_context():
             user = db.session.get(BotUser, chat_id)
             
-            # Якщо юзера немає в базі, вимагаємо пароль
             if not user:
                 pwd_hash = hashlib.sha256(txt.encode()).hexdigest()
                 if pwd_hash == HASH_USER:
@@ -408,7 +402,6 @@ if bot:
             
             user_role = user.role
 
-            # Логіка для звичайного юзера
             if user_role == "user":
                 if txt.startswith('/del'):
                     parts = txt.split()
@@ -439,7 +432,6 @@ if bot:
                     except Exception as e:
                         bot.reply_to(message, f"DB Error: {e}")
                     
-            # Логіка для адміна
             elif user_role == "admin":
                 if txt == "/backup":
                     send_scheduled_backup()
@@ -490,7 +482,6 @@ def run_bot_thread():
         except Exception as e:
             print(f"Main Bot crash: {e}")
 
-# НОВА ФУНКЦІЯ
 def run_request_bot_thread():
     if request_bot:
         try:
@@ -526,8 +517,6 @@ def index():
         today = date.today()
         cal = ensure_calendar_entry(today)
         
-        # --- НОВА ЛОГІКА ДЛЯ ОСТАННІХ 5 ТВІТІВ ---
-        # Шукаємо останні дні, в яких є записи, сортуючи від найновіших
         recent_cals = Calendar.query.filter(
             Calendar.comments != "", 
             Calendar.comments.is_not(None)
@@ -542,21 +531,17 @@ def index():
                     end_bracket = line.find(']')
                     time_str = line[1:end_bracket]
                     text_str = line[end_bracket+1:].strip()
-                    # Зберігаємо також дату, щоб знати коли це було написано
                     day_comments.append({'date': c.actual_date.strftime('%Y-%m-%d'), 'time': time_str, 'text': text_str})
                 else:
                     day_comments.append({'date': c.actual_date.strftime('%Y-%m-%d'), 'time': '', 'text': line})
             
-            day_comments.reverse() # Спочатку новіші за цей конкретний день
+            day_comments.reverse()
             global_parsed_comments.extend(day_comments)
             
-            # Якщо вже назбирали 5, можна зупинитись
             if len(global_parsed_comments) >= 5:
                 break
                 
-        # Відрізаємо рівно 5 найновіших зібраних твітів
         parsed_comments = global_parsed_comments[:5]
-        # ----------------------------------------
 
         board_items = BoardItem.query.order_by(BoardItem.id.desc()).all()
         board_data = [{'id': b.id, 'text': b.text} for b in board_items]
@@ -578,20 +563,16 @@ def index():
         threads = Thread.query.filter(Thread.status == 'active').order_by(Thread.rank.desc()).all()
         grouped_threads = {c: [] for c in categories}
         
-        # --- НОВА ЛОГІКА СІТКИ (40k Format) ---
         age = today.year - 1992 - ((today.month, today.day) < (2, 16))
         bday = date(1992 + age, 2, 16)
         delta_today = (today - bday).days
         current_week_num = (delta_today // 7) + 1
         
-        # Початок поточного "життєвого тижня"
         start_of_current_week = bday + timedelta(days=(current_week_num - 1) * 7)
         
-        # Відображаємо 4 тижні: поточний і 3 попередні
         start_date = start_of_current_week - timedelta(days=21)
         end_date = start_of_current_week + timedelta(days=6)
         
-        # Формуємо заголовки тижнів (наприклад: 33.50, 33.51, 33.52, 34.1)
         week_headers = []
         for i in range(4):
             w_start = start_date + timedelta(days=i*7)
@@ -745,7 +726,6 @@ if not any(t.name == "BotThread" for t in threading.enumerate()):
     t.daemon = True
     t.start()
 
-# Запуск ДРУГОГО бота
 if not any(t.name == "RequestBotThread" for t in threading.enumerate()):
     t2 = threading.Thread(target=run_request_bot_thread, name="RequestBotThread")
     t2.daemon = True
