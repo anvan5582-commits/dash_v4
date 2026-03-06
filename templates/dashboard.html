@@ -179,11 +179,11 @@
         /* GRID DYNAMICS */
         .grid-container {
             display: grid;
-            row-gap: 0px;       /* <-- Вертикальний відступ між рядками (поставте 0 або 1) */
-            column-gap: 2px;    /* <-- Горизонтальний відступ між днями залишаємо 2px */
+            row-gap: 0px;
+            column-gap: 2px;
             font-size: 11px;
             padding-bottom: 50px;
-            align-items: center; /* Додайте це, щоб клітинки ідеально центрувались */
+            align-items: center;
         }
 
         .week-header {
@@ -212,7 +212,7 @@
             margin-top: 4px;
             border-bottom: 1px solid #e0e0e0;
             display: flex;
-            justify-content: space-between; /* Розштовхуємо по краях */
+            justify-content: space-between;
             align-items: center;
         }
 
@@ -221,14 +221,13 @@
             cursor: pointer; 
             font-size: 13px; 
             font-weight: 600; 
-            color: #1a1a1a; /* Стиль під інші кнопки */
+            color: #1a1a1a;
             background: #f5f5f5;
             border: 1px solid #ddd;
             padding: 4px 10px;
             border-radius: 6px;
             transition: all 0.2s;
             
-            /* Магія для прилипання до правого краю */
             position: sticky;
             right: 0px; 
             z-index: 10;
@@ -241,14 +240,13 @@
 
         .habit-label {
             grid-column: 1;
-            padding: 0px 12px 0px 0; /* <-- Змінили верхній і нижній відступи на 0 */
+            padding: 0px 12px 0px 0;
             display: flex;
             align-items: center;
             justify-content: space-between;
             font-size: 12px;
-            min-height: 16px; /* <-- Фіксуємо висоту, щоб вона була трохи більшою за квадратик (14px) */
+            min-height: 16px;
         }
-        /* Якщо авторизований, показуємо відразу, якщо ні - ховаємо зовсім */
 .label-controls { 
    display: {{ 'flex' if is_auth else 'none' }} !important; 
     gap: 4px; 
@@ -279,20 +277,19 @@
 .habit-cell.miss { 
     background: repeating-linear-gradient(
         45deg,
-        #1a1a1a,        /* Колір штриха (початок) - темний */
-        #1a1a1a 2px,    /* Колір штриха (кінець) */
-        #ffffff 2px,    /* Колір проміжку (початок) - білий */
-        #ffffff 4px     /* Колір проміжку (кінець) */
+        #1a1a1a,
+        #1a1a1a 2px,
+        #ffffff 2px,
+        #ffffff 4px
     );
-    border-color: #1a1a1a; /* Рамка теж темна для чіткості */
-    opacity: 0.8;          /* Трохи прозорості, щоб відрізняти від повністю виконаного */
+    border-color: #1a1a1a;
+    opacity: 0.8;
 }
         .habit-cell.is-today { border: 2px solid #2196f3 !important; transform: scale(1.1); }
         .habit-cell.padding { border: none; pointer-events: none; opacity: 0; }
         .habit-cell.fulfilled { background: #f0f0f0; border: 1px solid #ddd; }
         .habit-cell.off-routine { border: 1px dashed #999; opacity: 0.5; }
 
-        /* Tooltip */
         .habit-cell[data-reason]:hover::after {
             content: attr(data-reason);
             position: absolute; bottom: 130%; left: 50%; transform: translateX(-50%);
@@ -300,13 +297,11 @@
             font-size: 11px; white-space: nowrap; z-index: 999; pointer-events: none;
         }
 
-        /* Scrollbar Styling */
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: #f1f1f1; }
         ::-webkit-scrollbar-thumb { background: #c0c0c0; border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: #a0a0a0; }
 
-        /* Modals */
         .modal {
             display: none;
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -334,7 +329,6 @@
         .modal-btn.black { background: #1a1a1a; color: white; }
         .modal-btn.black:hover { background: #333; }
         
-        /* Modal inputs */
         .m-input {
             width: 100%; padding: 10px; margin-bottom: 12px; border: 1px solid #ddd; border-radius: 6px; font-family: inherit; font-size: 13px;
         }
@@ -439,7 +433,6 @@ function updateSquare(el, status, reason) {
             
             el.className = newClass;
             
-            // Динамічне оновлення решти днів тижня після кліку
             updateRowVisuals(el.getAttribute('data-id'), el.getAttribute('data-week'), el.getAttribute('data-cadence'));
             
             fetch('/api/toggle_status', {
@@ -454,12 +447,10 @@ function updateSquare(el, status, reason) {
             if (cadence === '3x_week') target = 3;
             
             if (target > 0) {
-                // Знаходимо всі клітинки цього конкретного тижня для цієї звички
                 const cells = document.querySelectorAll(`.habit-cell[data-id="${threadId}"][data-week="${weekIndex}"]`);
                 let hits = 0;
                 cells.forEach(c => { if(c.getAttribute('data-status') === 'hit') hits++; });
                 
-                // Зафарбовуємо або очищаємо сірий статус
                 cells.forEach(c => {
                     const status = c.getAttribute('data-status');
                     if (status !== 'hit' && status !== 'miss') {
@@ -506,11 +497,9 @@ function updateSquare(el, status, reason) {
             }).then(() => location.reload());
         }
 
-        // Dummy functions for UI parity
         function exportData() { alert("Please use the /backup command in the Telegram Bot to export your database."); }
         function importData() { alert("Please send the JSON file to the Telegram Bot to restore."); }
         
-        // Setup Enter key for input
         document.addEventListener('DOMContentLoaded', () => {
             const taskInput = document.getElementById('taskInput');
             if (taskInput) {
