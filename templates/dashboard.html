@@ -384,6 +384,39 @@
             };
             fetch('/api/add_thread', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload) }).then(r => r.json()).then(d => { if(d.success) location.reload(); else alert(d.error); });
         }
+
+        function openEditModal(id, name, redacted, subCat, type, cadence) {
+            document.getElementById('editThreadId').value = id;
+            document.getElementById('editThreadName').value = name || '';
+            document.getElementById('editThreadRedacted').value = redacted || '';
+            document.getElementById('editThreadSubCat').value = subCat || '';
+            document.getElementById('editThreadType').value = type || 'perpetual';
+            document.getElementById('editThreadCadence').value = cadence || 'daily';
+            
+            showModalWindow('editThreadModal');
+        }
+
+        function submitEditThread() {
+            const payload = {
+                id: document.getElementById('editThreadId').value,
+                name: document.getElementById('editThreadName').value,
+                redacted: document.getElementById('editThreadRedacted').value,
+                sub_category: document.getElementById('editThreadSubCat').value,
+                type: document.getElementById('editThreadType').value,
+                cadence: document.getElementById('editThreadCadence').value
+            };
+            
+            fetch('/api/edit_thread', { 
+                method: 'POST', 
+                headers: {'Content-Type': 'application/json'}, 
+                body: JSON.stringify(payload) 
+            })
+            .then(r => r.json())
+            .then(d => { 
+                if(d.success) location.reload(); 
+                else alert(d.error); 
+            });
+        }
         
         function saveContext() {
             const payload = {
@@ -583,6 +616,7 @@ function updateSquare(el, status, reason) {
                             
                             {% if is_auth %}
                             <div class="label-controls" style="display: flex !important;">
+    <button class="l-btn" onclick="openEditModal('{{ item.info.thread_id }}', '{{ item.info.thread_name }}', '{{ item.info.thread_name_redacted or '' }}', '{{ item.info.sub_category or '' }}', '{{ item.info.type }}', '{{ item.info.cadence }}')">✎</button>
     <button class="l-btn" onclick="moveThread('{{ item.info.thread_id }}', 'up')">↑</button>
     <button class="l-btn" onclick="moveThread('{{ item.info.thread_id }}', 'down')">↓</button>
     <button class="l-btn red" onclick="deleteThread('{{ item.info.thread_id }}', '{{ item.info.thread_name }}')">×</button>
@@ -652,6 +686,44 @@ function updateSquare(el, status, reason) {
         </div>
     </div>
 
+    <div class="modal" id="editThreadModal">
+        <div class="modal-content">
+            <div class="modal-title">Edit Habit</div>
+            <div style="text-align: left; margin-bottom: 20px;">
+                <input type="hidden" id="editThreadId">
+                <label class="m-label">Name</label>
+                <input type="text" id="editThreadName" class="m-input">
+                
+                <label class="m-label">Hidden Name</label>
+                <input type="text" id="editThreadRedacted" class="m-input">
+                
+                <label class="m-label">Sub Category</label>
+                <input type="text" id="editThreadSubCat" class="m-input">
+                
+                <label class="m-label">Type</label>
+                <select id="editThreadType" class="m-input">
+                    <option value="perpetual">Perpetual</option>
+                    <option value="quest">Quest</option>
+                    <option value="frog">Frog</option>
+                </select>
+                
+                <label class="m-label">Frequency</label>
+                <select id="editThreadCadence" class="m-input">
+                    <option value="daily">Daily</option>
+                    <option value="weekly">Weekly</option>
+                    <option value="3x_week">3x / Week</option>
+                    <option value="monthly">Monthly</option>
+                    <option value="quarterly">Seasonally</option>
+                    <option value="yearly">Yearly</option>
+                </select>
+            </div>
+            <div class="modal-buttons">
+                <button class="modal-btn cancel" onclick="hideModalWindow('editThreadModal')">Cancel</button>
+                <button class="modal-btn black" onclick="submitEditThread()">Save</button>
+            </div>
+        </div>
+    </div>
+    
     <div class="modal" id="contextModal">
         <div class="modal-content">
             <div class="modal-title" id="contextTitle">Day Context</div>
