@@ -697,6 +697,27 @@ def delete_thread():
         return jsonify({'success': True})
     return jsonify({'success': False})
 
+@app.route('/api/edit_thread', methods=['POST'])
+@login_required
+def edit_thread():
+    try:
+        data = request.json
+        t_id = data.get('id')
+        thread = db.session.get(Thread, t_id)
+        
+        if thread:
+            thread.thread_name = data.get('name')
+            thread.thread_name_redacted = data.get('redacted', '')
+            thread.sub_category = data.get('sub_category', '')
+            thread.type = data.get('type', 'perpetual')
+            thread.cadence = data.get('cadence', 'daily')
+            db.session.commit()
+            return jsonify({'success': True})
+            
+        return jsonify({'success': False, 'error': 'Звичку не знайдено'})
+    except Exception as e: 
+        return jsonify({'success': False, 'error': str(e)})
+
 @app.route('/api/move_thread', methods=['POST'])
 @login_required
 def move_thread():
